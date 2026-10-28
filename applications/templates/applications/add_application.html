@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Application | ApplyFlow</title>
+    <link rel="stylesheet" href="{% static 'applications/style.css' %}">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <a href="{% url 'dashboard' %}" class="brand">
+            <span class="brand-mark">A</span>
+            <span>ApplyFlow</span>
+        </a>
+
+        <p class="sidebar-label">WORKSPACE</p>
+
+        <a href="{% url 'dashboard' %}" class="nav-item">Dashboard</a>
+        <a href="{% url 'dashboard' %}#applications" class="nav-item">My Applications</a>
+        <a href="{% url 'add_application' %}" class="nav-item active">Add Application</a>
+        <a href="{% url 'profile' %}" class="nav-item">My Profile</a>
+
+        <form method="POST" action="{% url 'logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="nav-item logout-button">Sign out</button>
+        </form>
+
+        <div class="sidebar-footer">
+            <div class="profile-avatar">{{ request.user.username|first|upper }}</div>
+            <div>
+                <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                <small>Career tracker</small>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">APPLICATION TRACKER</p>
+                <h1>Add an application</h1>
+                <p class="muted">Save a new opportunity and keep your job search organized.</p>
+            </div>
+
+            <a href="{% url 'dashboard' %}" class="button-secondary">
+                Back to dashboard
+            </a>
+        </header>
+
+        {% for message in messages %}
+            <div class="alert-success">{{ message }}</div>
+        {% endfor %}
+
+        <section class="content-card form-card">
+            <div class="section-heading">
+                <div>
+                    <h2>Application details</h2>
+                    <p class="muted">Enter the details you want to track.</p>
+                </div>
+            </div>
+
+            <form method="POST" class="application-form">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="form-grid">
+                    {% for field in form %}
+                        <div class="form-field {% if field.name == 'notes' %}full-width{% endif %}">
+                            <label for="{{ field.id_for_label }}">
+                                {{ field.label }}{% if field.field.required %} *{% endif %}
+                            </label>
+
+                            {{ field }}
+
+                            {% if field.help_text %}
+                                <small class="help-text">{{ field.help_text }}</small>
+                            {% endif %}
+
+                            {% for error in field.errors %}
+                                <small class="field-error">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'dashboard' %}" class="button-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="button-primary">
+                        Save application
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <footer class="page-footer">
+            ApplyFlow · Your career, organized.
+        </footer>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,277 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApplyFlow | Dashboard</title>
+    <link rel="stylesheet" href="{% static 'applications/style.css' %}">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <a href="{% url 'dashboard' %}" class="brand">
+            <span class="brand-mark">A</span>
+            <span>ApplyFlow</span>
+        </a>
+
+        <p class="sidebar-label">WORKSPACE</p>
+
+        <a href="{% url 'dashboard' %}" class="nav-item active">
+            Dashboard
+        </a>
+
+        <a href="#applications" class="nav-item">
+            My Applications
+        </a>
+
+        <a href="{% url 'add_application' %}" class="nav-item">
+            Add Application
+        </a>
+
+        <a href="{% url 'profile' %}" class="nav-item">
+            My Profile
+        </a>
+
+        <form method="POST" action="{% url 'logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="nav-item logout-button">
+                Sign out
+            </button>
+        </form>
+
+        <div class="sidebar-footer">
+            <div class="profile-avatar">
+                {{ request.user.username|first|upper }}
+            </div>
+
+            <div>
+                <strong>
+                    {{ request.user.get_full_name|default:request.user.username }}
+                </strong>
+                <small>Career tracker</small>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">YOUR CAREER WORKSPACE</p>
+                <h1>Dashboard</h1>
+                <p class="muted">
+                    Keep every opportunity organized in one place.
+                </p>
+            </div>
+
+            <a href="{% url 'add_application' %}" class="button-primary">
+                + Add application
+            </a>
+        </header>
+
+        {% for message in messages %}
+            <div class="alert-success">{{ message }}</div>
+        {% endfor %}
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <p>Total applications</p>
+                <h2>{{ total }}</h2>
+                <span class="stat-note">All tracked opportunities</span>
+            </article>
+
+            <article class="stat-card">
+                <p>Applied</p>
+                <h2>{{ applied }}</h2>
+                <span class="stat-note">Applications submitted</span>
+            </article>
+
+            <article class="stat-card">
+                <p>Interviews</p>
+                <h2>{{ interviews }}</h2>
+                <span class="stat-note">Interview stage</span>
+            </article>
+
+            <article class="stat-card">
+                <p>Offers</p>
+                <h2>{{ offers }}</h2>
+                <span class="stat-note">Offers received</span>
+            </article>
+        </section>
+
+        <section class="content-card" id="applications">
+            <div class="section-heading">
+                <div>
+                    <h2>My Applications</h2>
+                    <p class="muted">
+                        A complete view of your job search.
+                    </p>
+                </div>
+
+                <a href="{% url 'add_application' %}" class="text-link">
+                    + New application
+                </a>
+            </div>
+
+            <form method="GET" class="search-filter-form" id="searchForm">
+                <div class="search-box">
+                    <input
+                        type="search"
+                        name="q"
+                        placeholder="Search company, role or location..."
+                        value="{{ query }}"
+                    >
+
+                    <select name="status">
+                        <option value="">All statuses</option>
+
+                        {% for value, label in status_choices %}
+                            <option
+                                value="{{ value }}"
+                                {% if selected_status == value %}selected{% endif %}
+                            >
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit" class="button-primary">
+                        Search
+                    </button>
+
+                    {% if query or selected_status %}
+                        <a href="{% url 'dashboard' %}" class="button-secondary">
+                            Clear
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+
+            {% if applications %}
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>COMPANY &amp; ROLE</th>
+                                <th>JOB TYPE</th>
+                                <th>APPLIED ON</th>
+                                <th>STATUS</th>
+                                <th>DEADLINE</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for application in applications %}
+                                <tr>
+                                    <td>
+                                        <div class="company-name">
+                                            {{ application.company }}
+                                        </div>
+
+                                        <div class="role-name">
+                                            {{ application.role }}
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        {{ application.job_type|default:"—" }}
+                                    </td>
+
+                                    <td>
+                                        {{ application.applied_on|date:"d M Y" }}
+                                    </td>
+
+                                    <td>
+                                        <span class="status-pill status-{{ application.status|lower }}">
+                                            {{ application.status }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {% if application.deadline %}
+                                            {{ application.deadline|date:"d M Y" }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        <div class="table-actions">
+                                            <a
+                                                href="{% url 'edit_application' application.pk %}"
+                                                class="button-small button-edit"
+                                            >
+                                                Edit
+                                            </a>
+
+                                            <form
+                                                method="POST"
+                                                action="{% url 'delete_application' application.pk %}"
+                                                onsubmit="return confirm('Are you sure you want to delete this application?');"
+                                            >
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="button-small button-delete"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-mark">A</div>
+
+                    <h3>
+                        {% if query or selected_status %}
+                            No matching applications found.
+                        {% else %}
+                            Your next opportunity starts here.
+                        {% endif %}
+                    </h3>
+
+                    <p>
+                        {% if query or selected_status %}
+                            Try changing your search or status filter to find applications.
+                        {% else %}
+                            You haven't added any applications yet.
+                            Create your first record to get started.
+                        {% endif %}
+                    </p>
+
+                    {% if query or selected_status %}
+                        <a
+                            href="{% url 'dashboard' %}"
+                            class="button-secondary"
+                        >
+                            Clear filters
+                        </a>
+                    {% else %}
+                        <a
+                            href="{% url 'add_application' %}"
+                            class="button-primary"
+                        >
+                            Add your first application
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </section>
+
+        <footer class="page-footer">
+            ApplyFlow · Your career, organized.
+        </footer>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,125 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | ApplyFlow</title>
+    <link rel="stylesheet" href="{% static 'applications/style.css' %}">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <a href="{% url 'dashboard' %}" class="brand">
+            <span class="brand-mark">A</span>
+            <span>ApplyFlow</span>
+        </a>
+
+        <p class="sidebar-label">WORKSPACE</p>
+        <a href="{% url 'dashboard' %}" class="nav-item">Dashboard</a>
+        <a href="{% url 'dashboard' %}#applications" class="nav-item">
+            My Applications
+        </a>
+        <a href="{% url 'add_application' %}" class="nav-item">
+            Add Application
+        </a>
+        <a href="{% url 'profile' %}" class="nav-item active">
+            My Profile
+        </a>
+
+        <div class="sidebar-footer">
+            <div class="profile-avatar">
+                {{ profile.name|first|upper }}
+            </div>
+            <div>
+                <strong>{{ profile.name }}</strong>
+                <small>My Workspace</small>
+            </div>
+        </div>
+
+        <form method="POST" action="{% url 'logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="nav-item logout-button">
+                Sign out
+            </button>
+        </form>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">YOUR ACCOUNT</p>
+                <h1>My Profile</h1>
+                <p class="muted">
+                    Make your workspace reflect your career goals.
+                </p>
+            </div>
+            <a href="{% url 'dashboard' %}" class="button-secondary">
+                Back to dashboard
+            </a>
+        </header>
+
+        {% for message in messages %}
+            <div class="alert-success">{{ message }}</div>
+        {% endfor %}
+
+        <section class="content-card profile-card">
+            <div class="profile-intro">
+                <div class="large-avatar">
+                    {{ profile.name|first|upper }}
+                </div>
+                <div>
+                    <h2>{{ profile.name }}</h2>
+                    <p class="muted">
+                        {{ profile.headline|default:"Add a headline to introduce yourself." }}
+                    </p>
+                    {% if profile.target_role %}
+                        <span class="profile-tag">{{ profile.target_role }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="section-heading profile-section-heading">
+                <div>
+                    <h2>Profile details</h2>
+                    <p class="muted">
+                        Your information is saved to your ApplyFlow account.
+                    </p>
+                </div>
+            </div>
+
+            <form method="POST" class="application-form">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="form-grid">
+                    {% for field in form %}
+                        <div class="form-field {% if field.name == 'about' or field.name == 'skills' %}full-width{% endif %}">
+                            <label for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+
+                            {{ field }}
+
+                            {% for error in field.errors %}
+                                <small class="field-error">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="button-primary">
+                        Save profile
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,60 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | ApplyFlow</title>
+    <link rel="stylesheet" href="{% static 'applications/style.css' %}">
+</head>
+<body class="auth-page">
+    <main class="auth-card">
+        <a href="{% url 'login' %}" class="auth-brand">
+            <span class="brand-mark">A</span>
+            <span>ApplyFlow</span>
+        </a>
+
+        <p class="eyebrow">YOUR CAREER WORKSPACE</p>
+        <h1>Welcome back</h1>
+        <p class="muted">Sign in to manage your applications.</p>
+
+        {% if form.errors %}
+            <div class="auth-error">
+                Your username or password wasn't correct. Please try again.
+            </div>
+        {% endif %}
+
+        {% if next %}
+            <p class="muted">Please sign in to continue.</p>
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+
+            <div class="form-field">
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+                {{ form.username.errors }}
+            </div>
+
+            <div class="form-field">
+                <label for="{{ form.password.id_for_label }}">Password</label>
+                {{ form.password }}
+                {{ form.password.errors }}
+            </div>
+
+            <input type="hidden" name="next" value="{{ next }}">
+
+            <button type="submit" class="button-primary auth-submit">
+                Sign in
+            </button>
+        </form>
+
+        <p class="auth-switch">
+            Don't have an account?
+            <a href="{% url 'signup' %}">Create one</a>
+        </p>
+    </main>
+</body>
+</html>

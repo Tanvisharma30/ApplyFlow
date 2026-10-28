@@ -1,0 +1,54 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | ApplyFlow</title>
+    <link rel="stylesheet" href="{% static 'applications/style.css' %}">
+</head>
+<body class="auth-page">
+    <main class="auth-card">
+        <a href="{% url 'signup' %}" class="auth-brand">
+            <span class="brand-mark">A</span>
+            <span>ApplyFlow</span>
+        </a>
+
+        <p class="eyebrow">START YOUR CAREER WORKSPACE</p>
+        <h1>Create your account</h1>
+        <p class="muted">Keep your opportunities and progress organized.</p>
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+
+            {% for field in form %}
+                <div class="form-field">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <div class="help-text">{{ field.help_text }}</div>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="button-primary auth-submit">
+                Create account
+            </button>
+        </form>
+
+        <p class="auth-switch">
+            Already have an account?
+            <a href="{% url 'login' %}">Sign in</a>
+        </p>
+    </main>
+</body>
+</html>
